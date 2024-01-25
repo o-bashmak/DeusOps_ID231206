@@ -1,0 +1,59 @@
+---
+- name: install dependencies
+  ansible.builtin.apt:
+          name: 
+            - apt-transport-https
+            - ca-certificates
+            - curl
+            - gnupq-agent
+            - software-properties-common
+          state: present
+          update_cache: yes
+  
+- name: add GPG key
+  ansible.builtin.apt_key:
+          url: https://download.docker.com/linux/ubuntu/gpg
+  state: present 
+
+- name: add docker repository source list
+  ansible.builtin.apt_repository:
+          repo: deb https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
+          state: present
+
+- name: install docker
+  ansible.builtin.apt:
+          name:
+            - docker-ce
+            - docker-ce-cli
+            - containerd.io
+          state: latest
+          update_cache: yes
+
+- name: set docker service active
+  ansible.builtin.service:
+          name: docker
+          state: started
+          enabled: yes
+
+- name: ensure group "docker" exist
+  ansible.builtin.group:
+          name: docker
+          state: present  
+
+- name: adding current user to docker group
+  ansible.builtin.user:
+          name: {{ ansible_user_id }}
+          groups: docker
+          append: yes
+
+- name: install docker-compose && set permission
+  ansible.builtin.get_url:
+          url: https://github.com/docker/compose/releases/download/v2.24.2/docker-compose-linux-x86_64
+          dest: /usr/local/bin/docker-compose
+          mode: '755'
+
+- name: change file ownership && group && permission          
+  ansible.builtin.file:
+          path: /usr/local/bin/docker-compose
+          owner: {{ ansible_user_id }}
+          group: {{ ansible_user_id }}

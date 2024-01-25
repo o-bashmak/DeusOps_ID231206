@@ -1,0 +1,49 @@
+---
+# tasks file for nfs
+- block: # ========== BLOCK for NFS server =========
+  - name: Install NFS server on {{ ansible_nodename }}
+    ansible.builtin.apt:
+      name=nfs-kernel-server
+      state=latest
+
+  - name: create directory on {{ ansible_nodename }}
+    ansible.builtin.file:
+      path=/files
+      mode=0755
+      owner=nobody
+      group=nogroup
+      state=directory
+  - name: add fileshare into configfile NFS on {{ ansible_fqdn }}
+    ansible.builtin.lineinfile:
+            path: /etc/exports
+            line: '/files {{ ansible_enp0s8.ipv4.network }}/24(rw,sync,nohide,all_squash,no_subtree_check)'
+            insertafter: $
+
+    notify:
+      - restart NFS
+
+  when: "'NFS_SERVER' in group_names"
+
+- block: # ========== BLOCK for NFS client =========
+  - name: Install NFS client on {{ hostvars[inventory_hostname]['ansible_nodename'] }}
+    ansible.builtin.apt:
+        name=nfs-common
+        state=latest
+
+  - name: Create directory for NFS share on {{ hostvars[inventory_hostname]['ansible_nodename'] }}
+    ansible.builtin.file:
+        path=/media/files
+        mode=0755
+        state=directory
+
+  - name: Add config to /etc/fstab on {{ hostvars[inventory_hostname]['ansible_nodename'] }}
+    ansible.builtin.lineinfile:
+      dest=/etc/fstab
+      regexp='^'
+      insertafter=EOF
+      line="{{ hostvars['file01']['ansible_host'] }}:/files /media/files nfs user,rw 0 0"
+
+  - debug:
+          msg: "The message is - {{ ansible_lsb.codename }} "
+
+  when: "'NFS_CLIENT' in group_names"

@@ -1,0 +1,15 @@
+---
+# tasks file for nginx
+- name: Install Nginx
+  ansible.builtin.apt:
+          name=nginx
+          state=latest
+
+- name: Copy template Nginx file 
+  ansible.builtin.template:
+          src=default.nginx.j2
+          dest={{ dest_folder }}/default
+          mode=0555
+  notify:
+          - Restart Nginx
+

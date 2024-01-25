@@ -1,0 +1,20 @@
+---
+# tasks file for docker
+- name: Install pip
+  ansible.builtin.apt:
+          name=pip
+          state=latest
+
+- name: Clone a github repo with Django progect
+  ansible.builtin.git:
+          repo={{ docker_django_repo }}
+          dest={{ docker_django_path }}
+          clone=yes
+          update=yes
+
+
+- name: Copy settings django file
+  ansible.builtin.copy:
+          src=settings.py
+          dest={{ docker_django_settings_folder }}/settings.py
+
