@@ -1,0 +1,44 @@
+stages:
+  - test
+  - build
+  - deploy
+
+Django tests:
+  stage: test
+  image: python:latest
+  script:
+    - pip install -r requirements.txt
+    - python manage.py test --noinput
+  tags:
+    - docker
+
+Docker Build:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest .
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
+#  when: manual
+  tags:
+    - shell
+
+Deploy Image:
+  stage: deploy
+  script:   
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    - docker stop ${CI_PROJECT_NAME} || true
+    - docker rm ${CI_PROJECT_NAME} || true
+    - docker rmi ${CI_REGISTRY}/${CI_PROJECT_PATH}/{CI_PROJECT_NAME}:latest || true
+    - docker pull ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
+    - sudo cp -rf $(pwd)/public /media/files/public
+    - docker run -d -p 8000:8000 -v /media/files:/media/files --name ${CI_PROJECT_NAME} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+#  when: manual
+  tags:
+    - shell
+
