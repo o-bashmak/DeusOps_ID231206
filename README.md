@@ -6,7 +6,7 @@ Normal:
       - установка Докера - install_Docker_Ubuntu.sh
       - Dockerfile для приложения - Dockerfile
   - Написать gitlab-ci pipline для автоматической сборки и публикации Докер-образа с приложением:
-      - ...
+      - .gitlab-ci.yml
   - Написать ansible-playbook настраивающий сервера web01 и file01:
       - сразу по ролям
   - Написать ansible-роль "nfs", для установки nfs-сервера и nfs-клиента. Придумать как разделять Server и Client на уровне ролей и уровне inventory-host-file,
