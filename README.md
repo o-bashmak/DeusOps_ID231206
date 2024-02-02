@@ -15,3 +15,7 @@ Normal:
       - .\roles\nfs
       - .\roles\nginx
       - .\roles\docker
+  - Добавить в gitlb-ci шаг с деплоем приложения на сервера. Ansible-роли должны находиться в отдельных репозиториях и работать через galaxy
+      - o-bashmak.id231206_ansible_nfs_role
+			- o-bashmak.id231206_ansible_docker_role
+			- o-bashmak.id231206_ansible_nginx_role
