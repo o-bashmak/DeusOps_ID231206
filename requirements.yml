@@ -1,0 +1,11 @@
+- src: https://github.com/o-bashmak/id231206_ansible_docker_role.git
+  version: origin/master
+  name: docker
+
+- src: https://github.com/o-bashmak/id231206_ansible_nginx_role.git
+  version: origin/master
+  name: nginx
+
+- src: https://github.com/o-bashmak/id231206_ansible_nfs_role.git
+  version: origin/master
+  name: nfs
